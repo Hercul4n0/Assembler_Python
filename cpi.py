@@ -26,7 +26,7 @@ def load_cycles(nomeArquivo): #Transforma o conteúdo do arquivo csv em dicionar
             # Armazena add: 1 em Ciclos (ln 8)
 
             #Exibe os valores lidos no csv:
-            print(linha["Instrucao"], linha["Ciclos"])
+            #print(linha["Instrucao"], linha["Ciclos"])
 
             #Dicionarios serão muito usados para listar os registradores e "opcodes"
     return ciclos

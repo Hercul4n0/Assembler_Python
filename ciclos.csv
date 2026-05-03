@@ -2,3 +2,6 @@ Instrucao,Ciclos
 add,1
 sub,1
 mult,32
+addi, 1
+beq, 1
+j, 1

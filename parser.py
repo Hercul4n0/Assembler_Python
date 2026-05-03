@@ -42,7 +42,7 @@ def tokenizar(linha): #Quebrar texto em pedaços significativos, e estes pedaço
     return re.split(r"[,\s]+", linha.strip())
 
 
-def parseLinha(linha):
+def parseLinha(linha): #Função principal da biblioteca parser. Serve para separar labels, instruções e operandos de cada linha do código Assembly e será usada nas outras bibliotecas
     #remove comentários
     linha = removerComentarios(linha)
 
