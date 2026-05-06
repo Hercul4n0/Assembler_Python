@@ -1,13 +1,14 @@
-ENDERECO_INICIAL = 0x00400000
-
-
 def construirTabelaLabels(instrucoes):
+    ENDERECO_INICIAL = 0x00400000 #DEFININDO ENDERECO INICIAL PRA SER UTILIZADO
 
+    
+    #INICIA UM DICIONARIO VAZIO PRA TABELA DE LABELS
     tabelaLabels = {}
 
+    #DEFINE POR ORA QUE O ENDERECO ATUAL É IGUAL AO INICIAL
     enderecoAtual = ENDERECO_INICIAL
 
-
+    #PARA CADA INSTRUÇÃO EM INSTRUÇÕES:
     for instrucao in instrucoes:
 
         # Ignora linhas vazias

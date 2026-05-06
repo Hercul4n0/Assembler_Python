@@ -12,18 +12,16 @@ from symbols import construirTabelaLabels
 # a quantidade de ciclos de cada instrução
 from cpi import load_cycles
 
+from encoder import codificar #Chama a função para codificar instruções
+
 
 def main():
 
-    # ==========================================================
     # VERIFICACAO DOS ARGUMENTOS DA LINHA DE COMANDO
-    # ==========================================================
 
     # sys.argv guarda os parâmetros passados pelo terminal
     #
-    # Exemplo:
-    #
-    # python main.py teste.asm -b
+    # Exemplo: python main.py teste.asm -b
     #
     # sys.argv vira:
     #
@@ -290,7 +288,28 @@ def main():
         #
         print(instrucao + ":", quantidade)
 
+    #CODIFICACAO NA MAIN
+    from encoder import codificar
 
+    print("\n=== CODIGO DE MAQUINA ===\n")
+
+    ENDERECO_INICIAL = 0x00400000
+    enderecoAtual = ENDERECO_INICIAL
+
+    codigoMaquina = []
+
+    for instrucao in instrucoes:
+
+        if instrucao["instrucao"] is None:
+            continue
+
+        binario = codificar(instrucao, tabelaLabels, enderecoAtual)
+
+        codigoMaquina.append(binario)
+
+        print(binario)
+
+        enderecoAtual += 4
 # ==============================================================
 # PONTO DE ENTRADA DO PROGRAMA
 # ==============================================================
@@ -301,5 +320,4 @@ def main():
 # executa a função main()
 #
 if __name__ == "__main__":
-
     main()
