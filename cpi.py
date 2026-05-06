@@ -30,4 +30,22 @@ def load_cycles(nomeArquivo): #Transforma o conteúdo do arquivo csv em dicionar
 
             #Dicionarios serão muito usados para listar os registradores e "opcodes"
     return ciclos
+
+def calcularCPI(contagemInstrucoes, tabelaCiclos):
+        totalInstrucoes = 0 #Inicializa o total de instruções e ciclos
+        totalCiclos = 0
+
+        for instrucao, quantidade in contagemInstrucoes.items():
+             
+
+             ciclos = tabelaCiclos[instrucao] #Obtém quantos ciclos uma instrução consome consultando a tabela carregada do CSV
+             #Ex: tabelaCiclos["mult"]-> 32
+
+             totalInstrucoes += quantidade #Soma a quantidade de instruções executadas
+
+             totalCiclos += quantidade * ciclos #Soma os ciclos consumidos multiplicados pelo consumo por instrução
+
+
+        cpi = totalCiclos/totalInstrucoes #Vai calcular o cpi médio do programa: totalCiclos/totalInstrucoes
         
+        return totalInstrucoes, totalCiclos, cpi #Vai retornar o total de instruções, ciclos e o CPI médio
