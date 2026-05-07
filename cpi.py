@@ -1,51 +1,49 @@
-import csv #Serve para leitura de arquivos csv, coisa que o trabalho exige. É necessário ler a instrução, ler a quantidade de ciclos e calcular o CPI
+import csv
 
-#print(sys.argv) # sys.argv é uma lista com os parâmetros de texto recebidos pelo sys do prompt. Ele exibe a lista de parametros separados por espaçamento
+def load_cycles(nomeArquivo):
+    """Transforma o conteúdo do arquivo csv em dicionario"""
+    ciclos = {}
 
-def load_cycles(nomeArquivo): #Transforma o conteúdo do arquivo csv em dicionario
+    with open(nomeArquivo) as f:
+        leitor = csv.DictReader(f)
+        
+        for linha in leitor:
+            instrucao = linha["Instrucao"].strip()  # Remove espaços extras
+            # Remove espaços em branco ao redor do valor
+            ciclos_instrucao = int(linha["Ciclos"].strip())
+            ciclos[instrucao] = ciclos_instrucao
 
-    #nomeArquivo = sys.argv[1]
-
-    ciclos = {} #Cria um dicionário vazio 
-
-
-    with open(nomeArquivo) as f: #Instrução para operar e ler arquivos sem se preocupar com fechamento
-        leitor = csv.DictReader(f) #Usa dict reader para atribuir um iterador de dicionarios em leitor, tornando o resultado mais legível
-
-        for linha in leitor: #Percorre cada linha do arquivo ciclos.csv
-            instrucao = linha["Instrucao"] #Obtém o nome da instrução
-
-            ciclos_instrucao = int(linha["Ciclos"]) #Obtém a quantidade de ciclos ao passar por cada linha lendo o conteúdo do cabeçalho Ciclos 
-            #int() converte String para inteiro
-
-            ciclos[instrucao] = ciclos_instrucao #Armazena no dicionário:
-            #Chave -> nome da instrução
-            #valor -> quantidade de ciclos 
-            #Ex: Instrucao: add e Ciclos: 1
-            #ciclos["add"] = 1
-            # Armazena add: 1 em Ciclos (ln 8)
-
-            #Exibe os valores lidos no csv:
-            #print(linha["Instrucao"], linha["Ciclos"])
-
-            #Dicionarios serão muito usados para listar os registradores e "opcodes"
     return ciclos
 
+
 def calcularCPI(contagemInstrucoes, tabelaCiclos):
-        totalInstrucoes = 0 #Inicializa o total de instruções e ciclos
-        totalCiclos = 0
+    """Calcula o CPI médio do programa"""
+    totalInstrucoes = 0
+    totalCiclos = 0
+    instrucoesNaoEncontradas = []
 
-        for instrucao, quantidade in contagemInstrucoes.items():
-             
+    for instrucao, quantidade in contagemInstrucoes.items():
+        # Verifica se a instrução existe na tabela de ciclos
+        if instrucao in tabelaCiclos:
+            ciclos = tabelaCiclos[instrucao]
+            totalInstrucoes += quantidade
+            totalCiclos += quantidade * ciclos
+        else:
+            # Se a instrução não for encontrada, avisa e usa um valor padrão (1 ciclo)
+            instrucoesNaoEncontradas.append(instrucao)
+            # Avisa sobre instrução não encontrada (opcional)
+            print(f"AVISO: Instrução '{instrucao}' não encontrada no CSV. Usando 1 ciclo como padrão.")
+            totalInstrucoes += quantidade
+            totalCiclos += quantidade * 1  # Valor padrão de 1 ciclo
 
-             ciclos = tabelaCiclos[instrucao] #Obtém quantos ciclos uma instrução consome consultando a tabela carregada do CSV
-             #Ex: tabelaCiclos["mult"]-> 32
+    # Exibe instruções não encontradas se houver alguma
+    if instrucoesNaoEncontradas:
+        print(f"\nInstruções não encontradas no arquivo CSV: {instrucoesNaoEncontradas}")
+        print("Considere adicioná-las ao arquivo ciclos.csv para um cálculo mais preciso.\n")
 
-             totalInstrucoes += quantidade #Soma a quantidade de instruções executadas
-
-             totalCiclos += quantidade * ciclos #Soma os ciclos consumidos multiplicados pelo consumo por instrução
-
-
-        cpi = totalCiclos/totalInstrucoes #Vai calcular o cpi médio do programa: totalCiclos/totalInstrucoes
-        
-        return totalInstrucoes, totalCiclos, cpi #Vai retornar o total de instruções, ciclos e o CPI médio
+    # Evita divisão por zero
+    if totalInstrucoes == 0:
+        return 0, 0, 0
+    
+    cpi = totalCiclos / totalInstrucoes
+    return totalInstrucoes, totalCiclos, cpi

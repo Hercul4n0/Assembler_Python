@@ -12,14 +12,15 @@ INSTRUCOES = {
 "slt":  {"tipo": "R", "opcode": 0, "function": 42},
 
 # SHIFTS -> DESLOCADORES DE BITS
-"sll": {"tipo": "R", "opcode": 0, "funct": 0},
-"srl": {"tipo": "R", "opcode": 0, "funct": 2},
+"sll": {"tipo": "R", "opcode": 0, "function": 0},
+"srl": {"tipo": "R", "opcode": 0, "function": 2},
 
 # ESPECIAIS
 "jr":   {"tipo": "R", "opcode": 0, "function": 8},
 "mfhi": {"tipo": "R", "opcode": 0, "function": 16},
 "mflo": {"tipo": "R", "opcode": 0, "function": 18},
 "mult": {"tipo": "R", "opcode": 0, "function": 24},
+"mul": {"tipo": "R", "opcode": 0, "function": 24},
 "multu":{"tipo": "R", "opcode": 0, "function": 25},
 "div":  {"tipo": "R", "opcode": 0, "function": 26},
 

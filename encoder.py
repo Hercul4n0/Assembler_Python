@@ -20,6 +20,28 @@ def codificarR(nome, ops):
         shamt = int(ops[2])
 
         rs = 0 #Sempre é 0
+    
+    #CASO JR
+    elif nome == "jr":
+        rs = obterNumeroRegistrador(ops[0])
+        rt = 0
+        rd = 0
+        shamt = 0
+
+    #MULT / DIV
+    elif nome in ["mult", "multu", "div"]:
+        rs = obterNumeroRegistrador(ops[0])
+        rt = obterNumeroRegistrador(ops[1])
+        rd = 0
+        shamt = 0
+    
+    # PARA MFHI MFLO
+    elif nome in ["mfhi", "mflo"]:
+        rd = obterNumeroRegistrador(ops[0])
+        rs = 0
+        rt = 0
+        shamt = 0
+
     #CASO NORMAL
     else:
     #ops representa os operandos da instrução no formato: ["$t0", "$s1", "$s2"]
@@ -33,13 +55,8 @@ def codificarR(nome, ops):
 
     #CAMPOS FIXOS DO FORMATO R
     #Para instruções add, sub, ect, ambos são sempre 0
-    opcode = 0
+    #opcode = 0
     #shamt = 0
-
-    #CAMPO FUNCTION
-    #Cada instrução do tipo R é diferenciada pelo campo function
-
-    function = INSTRUCOES[nome]["function"]
 
     return(
         paraBinario(opcode, 6)+ # opcode -> 6 bits
@@ -61,19 +78,12 @@ def codificarI(nome, ops, tabelaLabels, enderecoAtual):
     opcode = info["opcode"] #Busca opcode em info que recebe INSTRUCOES
 
     # CASO 1: INSTRUCAO ADDI
-    if nome == "addi":
-        #Formato: addi rt, rs, imediato
-        #Ex:
-        #addi $t0, $s1, 7
+    if nome in ["addi", "addiu", "andi", "ori", "slti"]:
     
-        #Registrador destino
         rt = obterNumeroRegistrador(ops[0])
-
-        #Registrador fonte
         rs = obterNumeroRegistrador(ops[1])
-
-        #Valor imediato (ou constante) que recebe o valor imediato da expressão, marcada pela 3° posição 
         imediato = int(ops[2])
+
 
     #CASO 2: SE FOR UMA INSTRUCAO BEQ (BRANCH)
     elif nome == "beq":
@@ -97,6 +107,33 @@ def codificarI(nome, ops, tabelaLabels, enderecoAtual):
         #Cada instrucao possui 4 bytes -> divide por 4
 
         imediato = (enderecoLabel - (enderecoAtual + 4))//4
+    elif nome in ["lw", "sw"]:
+        rt = obterNumeroRegistrador(ops[0])
+        #print("DEBUG LW/SW:", ops)
+        offset, resto = ops[1].split("(")
+        rs = obterNumeroRegistrador(resto.replace(")", ""))
+
+        imediato = int(offset)
+
+    elif nome == "bne":
+
+        rs = obterNumeroRegistrador(ops[0])
+        rt = obterNumeroRegistrador(ops[1])
+
+        label = ops[2]
+        enderecoLabel = tabelaLabels[label]
+
+        imediato = (enderecoLabel - (enderecoAtual + 4))//4
+
+    elif nome == "lui":
+        rt = obterNumeroRegistrador(ops[0])
+        rs = 0
+        imediato = int(ops[1])
+
+
+
+
+
 
     #MONTAGEM DO CODIGO BINARIO
     #Formato I (32 bits):

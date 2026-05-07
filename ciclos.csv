@@ -1,7 +1,29 @@
 Instrucao,Ciclos
 add,1
 sub,1
-mult,32
-addi, 1
-beq, 1
-j, 1
+addu,1
+subu,1
+addi,1
+addiu,1
+and,1
+or,1
+andi,1
+ori,1
+sll,1
+srl,1
+lw,1
+sw,1
+lui,1
+mfhi,1
+mflo,1
+mult,1
+multu,1
+mul,1
+div,1
+beq,1
+bne,1
+slt,1
+slti,1
+j,1
+jal,1
+jr,1

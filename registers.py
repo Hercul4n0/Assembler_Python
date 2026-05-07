@@ -2,6 +2,12 @@ REGISTRADORES = {
 
     "$zero": 0,
 
+    "$at": 1,
+
+    "$v0": 2, "$v1":3,
+
+    "$a0": 4, "$a1": 5, "$a2": 6, "$a3": 7,
+
     "$t0": 8,
     "$t1": 9,
     "$t2": 10,
@@ -18,16 +24,33 @@ REGISTRADORES = {
     "$s4": 20,
     "$s5": 21,
     "$s6": 22,
-    "$s7": 23
+    "$s7": 23,
+
+    "$t8": 24, "$t9": 25,
+    "$k0": 26, "$k1": 27,
+
+
+    "$gp": 28,
+    "$sp": 29,
+    "$fp": 30,
+    "$ra": 31
 }
 
 def obterNumeroRegistrador(registrador):
 
     #Caso 1: Formato numérico -> $16
-    if registrador[1:].isdigit(): #Usa isdigit para verificar se todo caractere em uma string é um digito e se a string não é vazia
-        return int(registrador[1:]) #Usa "fatiamento" para ir do item 1 até o final da lista de strings. Retorna o valor da variavel registrador no formato inteiro a partir do segundo caractere.
+    if registrador.startswith("$"): #Usa isdigit para verificar se todo caractere em uma string é um digito e se a string não é vazia
+
+        parteNumerica = registrador[1:]
+        #return int(registrador[1:]) #Usa "fatiamento" para ir do item 1 até o final da lista de strings. Retorna o valor da variavel registrador no formato inteiro a partir do segundo caractere.
         # Ex: $16 -> Pula $ e retorna 16 inteiro
-    
+        if parteNumerica.isdigit():
+            numero = int(parteNumerica)
+
+            if 0 <= numero <= 31:
+                return numero
+            
+            
     #Caso 2: Formato simbólico -> $t0
     if registrador in REGISTRADORES: #Verifica se o registrador está contido no dicionario de registradores
         return REGISTRADORES[registrador] #Se estiver, retorna o valor correspondente

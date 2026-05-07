@@ -10,314 +10,159 @@ from symbols import construirTabelaLabels
 
 # Importa a função responsável por ler o arquivo CSV contendo
 # a quantidade de ciclos de cada instrução
-from cpi import load_cycles
+from cpi import load_cycles, calcularCPI
 
-from encoder import codificar #Chama a função para codificar instruções
+from encoder import codificar  # Chama a função para codificar instruções
+
+
+def binario_para_hexadecimal(binario_str):
+    """Converte uma string binária de 32 bits para hexadecimal (8 caracteres)"""
+    return format(int(binario_str, 2), '08x')
 
 
 def main():
-
     # VERIFICACAO DOS ARGUMENTOS DA LINHA DE COMANDO
-
-    # sys.argv guarda os parâmetros passados pelo terminal
-    #
-    # Exemplo: python main.py teste.asm -b
-    #
-    # sys.argv vira:
-    #
-    # [
-    #   "main.py",
-    #   "teste.asm",
-    #   "-b"
-    # ]
-    #
-    # Portanto:
-    #
-    # sys.argv[1] -> nome do arquivo ASM
-    # sys.argv[2] -> formato de saída
-    #
-    # Se o usuário não fornecer os parâmetros necessários,
-    # o programa exibe mensagem de uso e encerra.
-    #
     if len(sys.argv) < 3:
-
         print("Uso: python main.py <arquivo.asm> <-b|-h>")
-
         return
 
-
     # Obtém o nome do arquivo assembly passado pelo usuário
-    #
-    # Exemplo:
-    # teste.asm
-    #
     nomeArquivo = sys.argv[1]
 
-
     # Obtém o formato de saída
-    #
-    # -b -> saída binária
-    # -h -> saída hexadecimal
-    #
     formatoSaida = sys.argv[2]
 
+    # Valida o formato de saída
+    if formatoSaida not in ["-b", "-h"]:
+        print("Formato inválido. Use -b para binário ou -h para hexadecimal.")
+        return
+
+    # Define o nome do arquivo de saída (mesmo nome, extensão diferente)
+    if formatoSaida == "-b":
+        nomeArquivoSaida = nomeArquivo.replace(".asm", ".bin")
+    else:  # formatoSaida == "-h"
+        nomeArquivoSaida = nomeArquivo.replace(".asm", ".hex")
 
     # ==========================================================
     # EXIBICAO DOS PARAMETROS RECEBIDOS
     # ==========================================================
-
     print("\n=== PARAMETROS RECEBIDOS ===\n")
-
     print("Arquivo ASM:", nomeArquivo)
-
     print("Formato de saída:", formatoSaida)
-
+    print("Arquivo de saída:", nomeArquivoSaida)
 
     # ==========================================================
     # LEITURA DO ARQUIVO ASM
     # ==========================================================
-
-    # Lista que armazenará todas as instruções parseadas
-    #
-    # Cada elemento da lista será um dicionário como:
-    #
-    # {
-    #     "label": "L1",
-    #     "instrucao": "add",
-    #     "operandos": ["$t0", "$t1", "$t2"]
-    # }
-    #
     instrucoes = []
 
-
-    # Abre o arquivo assembly informado pelo usuário
-    #
-    # "arquivo" passa a representar o arquivo aberto
-    #
     with open(nomeArquivo) as arquivo:
-
-
-        # Percorre cada linha do arquivo
-        #
         for linha in arquivo:
-
-
-            # Envia a linha para o parser
-            #
-            # O parser:
-            # - remove comentários
-            # - identifica labels
-            # - separa instrução e operandos
-            #
             estrutura = parseLinha(linha)
 
-
-            # Ignora linhas vazias
-            #
-            # O parser retorna None quando a linha está vazia
-            #
             if estrutura is not None:
-
-
-                # Adiciona a estrutura parseada na lista
-                #
-                # append() adiciona um elemento ao final da lista
-                #
                 instrucoes.append(estrutura)
-
 
     # ==========================================================
     # EXIBICAO DA SAIDA DO PARSER
     # ==========================================================
-
-    # Exibe todas as estruturas produzidas pelo parser
-    #
-    # Isso serve para validar:
-    # - tokenização
-    # - labels
-    # - operandos
-    #
-    print("\n=== SAIDA DO PARSER ===\n")
-
-
-    # Percorre todas as instruções parseadas
-    #
-    for instrucao in instrucoes:
-
-
-        # Exibe a estrutura gerada pelo parser
-        #
-        print(instrucao)
-
+    #print("\n=== SAIDA DO PARSER ===\n")
+    #for instrucao in instrucoes:
+    #    print(instrucao)
 
     # ==========================================================
     # CONSTRUCAO DA TABELA DE LABELS
     # ==========================================================
-
-    # Constrói a tabela de símbolos do programa
-    #
-    # Exemplo:
-    #
-    # {
-    #     "L1": 0x00400000,
-    #     "L2": 0x00400004
-    # }
-    #
     tabelaLabels = construirTabelaLabels(instrucoes)
 
-
-    # ==========================================================
-    # EXIBICAO DA TABELA DE LABELS
-    # ==========================================================
-
     print("\n=== TABELA DE LABELS ===\n")
-
-
-    # items() percorre:
-    # chave -> valor
-    #
-    # Nesse caso:
-    # label -> endereço
-    #
     for label, endereco in tabelaLabels.items():
-
-
-        # hex() converte o inteiro para hexadecimal
-        #
         print(label, hex(endereco))
-
 
     # ==========================================================
     # LEITURA DO CSV DE CICLOS
     # ==========================================================
-
-    # Lê o arquivo ciclos.csv e gera um dicionário:
-    #
-    # {
-    #     "add": 1,
-    #     "sub": 1,
-    #     "mult": 32
-    # }
-    #
     tabelaCiclos = load_cycles("ciclos.csv")
 
-
-    # ==========================================================
-    # EXIBICAO DA TABELA DE CICLOS
-    # ==========================================================
-
     print("\n=== TABELA DE CICLOS ===\n")
-
-
-    # Percorre todas as instruções da tabela
-    #
     for instrucao, ciclos in tabelaCiclos.items():
-
-
-        # Exibe:
-        # instrução -> ciclos
-        #
         print(instrucao, ciclos)
-
 
     # ==========================================================
     # CONTAGEM DAS INSTRUCOES UTILIZADAS
     # ==========================================================
-
-    # Dicionário responsável por contar quantas vezes
-    # cada instrução aparece no programa
-    #
     contagemInstrucoes = {}
 
-
-    # Percorre todas as instruções parseadas
-    #
     for instrucao in instrucoes:
-
-
-        # Obtém o nome da instrução
-        #
-        # Ex:
-        # add
-        # sub
-        # beq
-        #
         nomeInstrucao = instrucao["instrucao"]
 
-
-        # Ignora labels sem instrução
-        #
-        # Exemplo:
-        #
-        # loop:
-        #
         if nomeInstrucao is None:
-
             continue
 
-
-        # Se a instrução ainda não estiver no dicionário,
-        # inicializa a contagem com zero
-        #
         if nomeInstrucao not in contagemInstrucoes:
-
             contagemInstrucoes[nomeInstrucao] = 0
 
-
-        # Incrementa a quantidade de ocorrências
-        #
         contagemInstrucoes[nomeInstrucao] += 1
 
-
-    # ==========================================================
-    # EXIBICAO DA QUANTIDADE DE INSTRUCOES
-    # ==========================================================
-
     print("\n=== QUANTIDADE DE INSTRUCOES ===\n")
-
-
-    # Percorre o dicionário de contagem
-    #
     for instrucao, quantidade in contagemInstrucoes.items():
-
-
-        # Exibe:
-        #
-        # add: 5
-        # sub: 2
-        #
         print(instrucao + ":", quantidade)
 
-    #CODIFICACAO NA MAIN
-    from encoder import codificar
-
-    print("\n=== CODIGO DE MAQUINA ===\n")
-
+    # ==========================================================
+    # CODIFICACAO E GERACAO DO ARQUIVO DE SAIDA
+    # ==========================================================
     ENDERECO_INICIAL = 0x00400000
     enderecoAtual = ENDERECO_INICIAL
 
-    codigoMaquina = []
+    codigoMaquinaBinario = []  # Lista para armazenar as instruções em binário
+    codigoMaquinaHex = []      # Lista para armazenar as instruções em hexadecimal
+
+    #print("\n=== CODIGO DE MAQUINA ===\n")
 
     for instrucao in instrucoes:
-
         if instrucao["instrucao"] is None:
             continue
 
         binario = codificar(instrucao, tabelaLabels, enderecoAtual)
+        hexa = binario_para_hexadecimal(binario)
 
-        codigoMaquina.append(binario)
+        codigoMaquinaBinario.append(binario)
+        codigoMaquinaHex.append(hexa)
 
-        print(binario)
+        # Exibe na tela no formato escolhido
+        #if formatoSaida == "-b":
+        #    print(binario)
+        #else:
+        #    print(hexa)
 
         enderecoAtual += 4
-# ==============================================================
-# PONTO DE ENTRADA DO PROGRAMA
-# ==============================================================
 
-# Verifica se o arquivo atual está sendo executado diretamente
-#
-# Se verdadeiro:
-# executa a função main()
-#
+    # ==========================================================
+    # ESCRITA DO ARQUIVO DE SAIDA
+    # ==========================================================
+    with open(nomeArquivoSaida, 'w') as arquivo_saida:
+        if formatoSaida == "-h":
+            # Formato hexadecimal com cabeçalho exigido pelo Logisim
+            arquivo_saida.write("v2.0 raw\n")
+            for linha in codigoMaquinaHex:
+                arquivo_saida.write(linha + "\n")
+        else:  # formatoSaida == "-b"
+            # Formato binário puro (um 0/1 por caractere)
+            for linha in codigoMaquinaBinario:
+                arquivo_saida.write(linha + "\n")
+
+    #print(f"\n=== ARQUIVO GERADO COM SUCESSO: {nomeArquivoSaida} ===\n")
+
+    # ==========================================================
+    # CALCULO DO CPI MEDIO
+    # ==========================================================
+    totalInstrucoes, totalCiclos, cpi = calcularCPI(contagemInstrucoes, tabelaCiclos)
+
+    print("\n=== CPI MEDIO ===\n")
+    print(f"Total de instruções: {totalInstrucoes}")
+    print(f"Total de ciclos: {totalCiclos}")
+    print(f"CPI médio: {cpi:.2f}")
+
+
 if __name__ == "__main__":
     main()

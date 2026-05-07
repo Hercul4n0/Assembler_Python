@@ -39,7 +39,7 @@ def tokenizar(linha): #Quebrar texto em pedaços significativos, e estes pedaço
 #   Linha assembly: add $t0, $t1, $t2
 #   Após tokenização: ["add", "$t0", "$t1", "$t2"]
 #Tokenizar seria transformar texto bruto em unidades léxicas
-    return re.split(r"[,\s]+", linha.strip())
+    return re.split(r"[,\s]+", linha) #Era LINHA.STRIP(). #O PROBLEMA ESTAVA ACONTECENDO POR CAUSA DE UM ESPAÇO ENTRE O 100 E O (2)
 
 
 def parseLinha(linha): #Função principal da biblioteca parser. Serve para separar labels, instruções e operandos de cada linha do código Assembly e será usada nas outras bibliotecas
